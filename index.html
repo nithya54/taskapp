@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Master - Productivity App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .dashboard-header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .dashboard-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        .task-board {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .board-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .add-task-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .add-task-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .task-columns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .task-column {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            min-height: 400px;
+        }
+
+        .column-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .column-count {
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .task-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+            cursor: grab;
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .task-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .task-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .task-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .task-priority {
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .priority-high { background: #ffebee; color: #d32f2f; }
+        .priority-medium { background: #fff3e0; color: #f57c00; }
+        .priority-low { background: #e8f5e8; color: #388e3c; }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .widget {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .widget-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .calendar {
+            text-align: center;
+        }
+
+        .calendar-date {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-day {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .progress-item {
+            margin-bottom: 1rem;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .team-member {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .member-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 500;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .member-role {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .status-online {
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .task-columns {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                ✅ Task Master
+            </div>
+            <div class="user-info">
+                <span>Welcome back, John!</span>
+                <div class="user-avatar">JD</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>📊 Your Dashboard</h1>
+            <p>Stay organized and boost your productivity</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number">24</span>
+                <span class="stat-label">Total Tasks</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">12</span>
+                <span class="stat-label">Completed</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">8</span>
+                <span class="stat-label">In Progress</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">4</span>
+                <span class="stat-label">Pending</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="task-board">
+                <div class="board-header">
+                    <h2 class="board-title">🗂️ Task Board</h2>
+                    <button class="add-task-btn" onclick="addNewTask()">+ Add Task</button>
+                </div>
+                
+                <div class="task-columns">
+                    <div class="task-column" data-column="todo">
+                        <div class="column-header">
+                            <span>📝 To Do</span>
+                            <span class="column-count">4</span>
+                        </div>
+                        <div class="task-item" draggable="true">
+                            <div class="task-title">Design Homepage</div>
+                            <div class="task-description">Create wireframes and mockups for the new homepage design</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-high">High</span>
+                                <span>Due: Today</span>
+                            </div>
+                        </div>
+                        <div class="task-item" draggable="true">
+                            <div class="task-title">API Documentation</div>
+                            <div class="task-description">Write comprehensive API documentation for the new endpoints</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-medium">Medium</span>
+                                <span>Due: Tomorrow</span>
+                            </div>
+                        </div>
+                        <div class="task-item" draggable="true">
+                            <div class="task-title">Database Optimization</div>
+                            <div class="task-description">Optimize database queries for better performance</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-low">Low</span>
+                                <span>Due: Friday</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="task-column" data-column="progress">
+                        <div class="column-header">
+                            <span>🔄 In Progress</span>
+                            <span class="column-count">3</span>
+                        </div>
+                        <div class="task-item" draggable="true">
+                            <div class="task-title">User Authentication</div>
+                            <div class="task-description">Implement login and registration functionality</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-high">High</span>
+                                <span>Due: Wed</span>
+                            </div>
+                        </div>
+                        <div class="task-item" draggable="true">
+                            <div class="task-title">Mobile Responsive</div>
+                            <div class="task-description">Make the website fully responsive for mobile devices</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-medium">Medium</span>
+                                <span>Due: Thu</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="task-column" data-column="review">
+                        <div class="column-header">
+                            <span>👀 Review</span>
+                            <span class="column-count">2</span>
+                        </div>
+                        <div class="task-item" draggable="true">
+                            <div class="task-title">Code Review</div>
+                            <div class="task-description">Review pull requests from team members</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-medium">Medium</span>
+                                <span>Due: Today</span>
+                            </div>
+                        </div>
+                        <div class="task-item" draggable="true">
+                            <div class="task-title">Testing Phase</div>
+                            <div class="task-description">Run comprehensive tests on new features</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-high">High</span>
+                                <span>Due: Tomorrow</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="task-column" data-column="done">
+                        <div class="column-header">
+                            <span>✅ Done</span>
+                            <span class="column-count">5</span>
+                        </div>
+                        <div class="task-item" draggable="true">
+                            <div class="task-title">Project Setup</div>
+                            <div class="task-description">Initialize project structure and dependencies</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-low">Low</span>
+                                <span>Completed</span>
+                            </div>
+                        </div>
+                        <div class="task-item" draggable="true">
+                            <div class="task-title">Environment Config</div>
+                            <div class="task-description">Set up development and production environments</div>
+                            <div class="task-meta">
+                                <span class="task-priority priority-medium">Medium</span>
+                                <span>Completed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="widget">
+                    <div class="widget-title">📅 Today</div>
+                    <div class="calendar">
+                        <div class="calendar-date" id="today-date">15</div>
+                        <div class="calendar-day" id="today-day">Monday</div>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-title">📈 Progress</div>
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Website Project</span>
+                            <span>75%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 75%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Mobile App</span>
+                            <span>45%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>API Development</span>
+                            <span>90%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 90%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-title">👥 Team</div>
+                    <div class="team-member">
+                        <div class="member-avatar">SM</div>
+                        <div class="member-info">
+                            <div class="member-name">Sarah Miller</div>
+                            <div class="member-role">UI Designer</div>
+                        </div>
+                        <div class="status-online"></div>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-avatar">MJ</div>
+                        <div class="member-info">
+                            <div class="member-name">Mike Johnson</div>
+                            <div class="member-role">Frontend Dev</div>
+                        </div>
+                        <div class="status-online"></div>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-avatar">ER</div>
+                        <div class="member-info">
+                            <div class="member-name">Emily Rodriguez</div>
+                            <div class="member-role">Backend Dev</div>
+                        </div>
+                        <div class="status-online"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set current date
+        const today = new Date();
+        document.getElementById('today-date').textContent = today.getDate();
+        document.getElementById('today-day').textContent = today.toLocaleDateString('en-US', { weekday: 'long' });
+
+        // Drag and drop functionality
+        let draggedElement = null;
+
+        document.querySelectorAll('.task-item').forEach(task => {
+            task.addEventListener('dragstart', handleDragStart);
+            task.addEventListener('dragend', handleDragEnd);
+        });
+
+        document.querySelectorAll('.task-column').forEach(column => {
+            column.addEventListener('dragover', handleDragOver);
+            column.addEventListener('drop', handleDrop);
+        });
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            draggedElement = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            if (draggedElement && this.classList.contains('task-column')) {
+                this.appendChild(draggedElement);
+                updateColumnCounts();
+            }
+        }
+
+        function updateColumnCounts() {
+            document.querySelectorAll('.task-column').forEach(column => {
+                const count = column.querySelectorAll('.task-item').length - 1; // Subtract header
+                const countElement = column.querySelector('.column-count');
+                if (countElement) {
+                    countElement.textContent = Math.max(0, count);
+                }
+            });
+        }
+
+        function addNewTask() {
+            const taskTitle = prompt('Enter task title:');
+            if (taskTitle) {
+                const newTask = document.createElement('div');
+                newTask.className = 'task-item';
+                newTask.draggable = true;
+                newTask.innerHTML = `
+                    <div class="task-title">${taskTitle}</div>
+                    <div class="task-description">New task description</div>
+                    <div class="task-meta">
+                        <span class="task-priority priority-medium">Medium</span>
+                        <span>Due: TBD</span>
+                    </div>
+                `;
+                
+                // Add event listeners
+                newTask.addEventListener('dragstart', handleDragStart);
+                newTask.addEventListener('dragend', handleDragEnd);
+                
+                // Add to first column (To Do)
+                const todoColumn = document.querySelector('[data-column="todo"]');
+                todoColumn.appendChild(newTask);
+                updateColumnCounts();
+            }
+        }
+
+        // Initialize column counts
+        updateColumnCounts();
+
+        // Simulate real-time updates
+        setInterval(() => {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(stat => {
+                if (Math.random() > 0.95) { // 5% chance to update
+                    const currentValue = parseInt(stat.textContent);
+                    const change = Math.random() > 0.5 ? 1 : -1;
+                    const newValue = Math.max(0, currentValue + change);
+                    stat.textContent = newValue;
+                }
+            });
+        }, 10000); // Every 10 seconds
+
+        console.log('Task Master App loaded successfully!');
+    </script>
+</body>
+</html>
